@@ -257,6 +257,16 @@ def generate_caption(fixtures):
 
 # ── 主程式 ──────────────────────────────────────────────
 def main():
+     print("🤖 Football Bot 啟動中...")
+    
+    # 自動查詢正確的 IG USER ID
+    if IG_ACCESS_TOKEN:
+        res = requests.get(
+            "https://graph.facebook.com/v19.0/me/accounts",
+            params={"access_token": IG_ACCESS_TOKEN, "fields": "id,name,instagram_business_account"}
+        )
+        print(f"📋 帳號資料：{res.json()}")
+    
     print("🤖 Football Bot 啟動中...")
 
     # 抓賽程（有 API Key 用真實資料，否則用假資料）
