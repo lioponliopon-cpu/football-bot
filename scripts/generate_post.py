@@ -97,15 +97,16 @@ def generate_schedule_image(fixtures, output_path="output/schedule.png"):
     img  = Image.new("RGB", (W, H), hex_to_rgb(COLORS["bg"]))
     draw = ImageDraw.Draw(img)
 
-    # ── 嘗試載入字體（找不到就用預設）
+    # ── 自動搜尋中文字體
+    import glob
     def load_font(size):
-        font_paths = [
-            "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
-            "/usr/share/fonts/opentype/noto/NotoSansCJKtc-Regular.otf",
-            "/System/Library/Fonts/PingFang.ttc",
+        patterns = [
+            "/usr/share/fonts/**/*CJK*.ttc",
+            "/usr/share/fonts/**/*CJK*.otf",
+            "/usr/share/fonts/**/*Noto*.ttc",
         ]
-        for path in font_paths:
-            if os.path.exists(path):
+        for pattern in patterns:
+            for path in glob.glob(pattern, recursive=True):
                 try:
                     return ImageFont.truetype(path, size)
                 except:
