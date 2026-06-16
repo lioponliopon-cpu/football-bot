@@ -97,20 +97,14 @@ def generate_schedule_image(fixtures, output_path="output/schedule.png"):
     img  = Image.new("RGB", (W, H), hex_to_rgb(COLORS["bg"]))
     draw = ImageDraw.Draw(img)
 
-    # ── 自動搜尋中文字體
-    import glob
+    # ── 載入中文字體（從 repo 內的 assets 資料夾）
     def load_font(size):
-        patterns = [
-            "/usr/share/fonts/**/*CJK*.ttc",
-            "/usr/share/fonts/**/*CJK*.otf",
-            "/usr/share/fonts/**/*Noto*.ttc",
-        ]
-        for pattern in patterns:
-            for path in glob.glob(pattern, recursive=True):
-                try:
-                    return ImageFont.truetype(path, size)
-                except:
-                    pass
+        font_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "NotoSansCJK.otf")
+        if os.path.exists(font_path):
+            try:
+                return ImageFont.truetype(font_path, size)
+            except Exception as e:
+                print(f"字體載入失敗：{e}")
         return ImageFont.load_default()
 
     font_title  = load_font(52)
