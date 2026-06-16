@@ -9,7 +9,7 @@ IMGBB_API_KEY    = os.environ.get("IMGBB_API_KEY", "")
 FONT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "NotoSansCJK.otf")
 
 BG=(13,17,23); CARD=(22,27,34); GREEN=(35,134,54)
-WHITE=(240,246,252); GRAY=(139,148,158); BORDER=(48,54,61); GOLD=(240,180,41)
+WHITE=(240,246,252); GRAY=(139,148,158); GOLD=(240,180,41)
 
 def mock_fixtures():
     return [
@@ -47,30 +47,23 @@ def generate_image(fixtures, path="output/schedule.png"):
     draw.rectangle([0,0,W,8], fill=GREEN)
     draw.text((W//2,70),  "⚽ 本週足球賽程", font=font(52), fill=WHITE, anchor="mm")
     draw.text((W//2,125), f"台灣時間 · {datetime.now().strftime('%Y.%m.%d')} 更新", font=font(26), fill=GRAY, anchor="mm")
-    draw.rectangle([60,155,W-60,158], fill=BORDER)
+    draw.rectangle([60,155,W-60,158], fill=GRAY)
 
-    # Cards - 拆開 fill 和 outline 分兩次畫
+    # Cards - 只用 rectangle，最大相容性
     card_h, card_gap = 150, 12
     for i, f in enumerate(fixtures):
         y = 170 + i * (card_h + card_gap)
-        # 卡片背景
-        draw.rounded_rectangle([50,y,W-50,y+card_h], radius=16, fill=CARD)
-        # 卡片邊框（單獨畫）
-        draw.rounded_rectangle([50,y,W-50,y+card_h], radius=16, outline=BORDER, width=1)
-        # 左側時間欄
-        draw.rounded_rectangle([50,y,180,y+card_h], radius=16, fill=GREEN)
-        draw.rectangle([150,y,180,y+card_h], fill=GREEN)
-        # 時間文字
-        draw.text((115,y+38),  f["date"],   font=font(22), fill=WHITE,        anchor="mm")
-        draw.text((115,y+75),  f["time"],   font=font(28), fill=WHITE,        anchor="mm")
-        draw.text((115,y+110), "台灣時間",   font=font(17), fill=(200,255,200), anchor="mm")
-        # 比賽資訊
+        draw.rectangle([50, y, W-50, y+card_h], fill=CARD)       # 卡片背景
+        draw.rectangle([50, y, 180,  y+card_h], fill=GREEN)       # 左側綠色欄
+        draw.text((115, y+38),  f["date"],   font=font(22), fill=WHITE,        anchor="mm")
+        draw.text((115, y+75),  f["time"],   font=font(28), fill=WHITE,        anchor="mm")
+        draw.text((115, y+112), "台灣時間",   font=font(17), fill=(200,255,200), anchor="mm")
         draw.text((310,   y+75), f["home"],  font=font(30), fill=WHITE, anchor="mm")
         draw.text((W//2,  y+75), f["score"], font=font(30), fill=GOLD,  anchor="mm")
         draw.text((W-310, y+75), f["away"],  font=font(30), fill=WHITE, anchor="mm")
 
     # Footer
-    draw.rectangle([60,H-110,W-60,H-109], fill=BORDER)
+    draw.rectangle([60,H-110,W-60,H-109], fill=GRAY)
     draw.text((W//2,H-75), "追蹤帳號 不漏球 ⚽",    font=font(30), fill=GREEN, anchor="mm")
     draw.text((W//2,H-38), "@your_football_account", font=font(22), fill=GRAY,  anchor="mm")
     draw.rectangle([0,H-8,W,H], fill=GREEN)
@@ -85,7 +78,7 @@ def upload_image(path):
         b64 = base64.b64encode(f.read()).decode()
     res = requests.post("https://api.imgbb.com/1/upload", data={"key":IMGBB_API_KEY,"image":b64}, timeout=30)
     url = res.json()["data"]["url"]
-    print(f"✅ 上傳成功：{url}")
+    print(f"✅ 上傳：{url}")
     return url
 
 def post_to_instagram(image_url, caption):
@@ -113,6 +106,7 @@ def main():
     print("🤖 Football Bot 啟動中...")
     print(f"字體存在：{os.path.exists(FONT_PATH)}")
     fixtures = fetch_fixtures() if API_FOOTBALL_KEY else mock_fixtures()
+    print(f"比賽數量：{len(fixtures)}")
     img_path = generate_image(fixtures)
     if IG_ACCESS_TOKEN and IMGBB_API_KEY:
         post_to_instagram(upload_image(img_path), make_caption(fixtures))
