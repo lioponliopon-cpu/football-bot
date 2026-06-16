@@ -106,6 +106,9 @@ def main():
     print("🤖 Football Bot 啟動中...")
     print(f"字體存在：{os.path.exists(FONT_PATH)}")
     fixtures = fetch_fixtures() if API_FOOTBALL_KEY else mock_fixtures()
+    if len(fixtures) == 0:
+    print("⚠️ API 無資料，改用示範資料")
+    fixtures = mock_fixtures())
     print(f"比賽數量：{len(fixtures)}")
     img_path = generate_image(fixtures)
     if IG_ACCESS_TOKEN and IMGBB_API_KEY:
