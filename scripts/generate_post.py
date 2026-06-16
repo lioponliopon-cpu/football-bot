@@ -216,30 +216,27 @@ def upload_image(image_path):
 
 # ── 5. 發布到 Instagram ──────────────────────────────────
 def post_to_instagram(image_url, caption):
-    """透過 Meta Graph API 發布貼文"""
-
-    # Step 1: 建立媒體容器
+    import time
     create_url = f"https://graph.facebook.com/v19.0/{IG_USER_ID}/media"
     res = requests.post(create_url, data={
         "image_url":    image_url,
         "caption":      caption,
         "access_token": IG_ACCESS_TOKEN,
     }, timeout=15)
+    print(f"建立媒體回應：{res.json()}")
     container_id = res.json().get("id")
-
     if not container_id:
         print(f"❌ 建立媒體失敗：{res.json()}")
         return
-
-    # Step 2: 發布
+    time.sleep(5)
     publish_url = f"https://graph.facebook.com/v19.0/{IG_USER_ID}/media_publish"
     res = requests.post(publish_url, data={
         "creation_id":  container_id,
         "access_token": IG_ACCESS_TOKEN,
     }, timeout=15)
-
+    print(f"發布回應：{res.json()}")
     if res.json().get("id"):
-        print(f"✅ 已發布到 Instagram！貼文ID：{res.json()['id']}")
+        print(f"✅ 發布成功！")
     else:
         print(f"❌ 發布失敗：{res.json()}")
 
