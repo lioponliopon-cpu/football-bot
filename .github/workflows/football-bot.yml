@@ -23,7 +23,7 @@ jobs:
 
       - name: 📦 安裝套件
         run: |
-          pip install requests Pillow
+          pip install requests "Pillow>=10.0.0"
           # 安裝中文字體
           sudo apt-get update && sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extrafc-cache -fv
 
