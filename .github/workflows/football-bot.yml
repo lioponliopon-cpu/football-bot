@@ -1,12 +1,7 @@
 name: Football Bot 自動發文
 
 on:
-  schedule:
-    # 每週一早上 08:00 台灣時間（UTC+8 = UTC 00:00）發本週賽程
-    - cron: "0 0 * * 1"
-    # 每天早上 08:00 發今日賽程
-    - cron: "0 0 * * *"
-  workflow_dispatch:  # 也可以手動觸發測試
+  workflow_dispatch:
 
 jobs:
   post-schedule:
@@ -24,8 +19,14 @@ jobs:
       - name: 📦 安裝套件
         run: |
           pip install requests "Pillow>=10.0.0"
-          # 安裝中文字體
-          sudo apt-get update && sudo apt-get install -y fonts-noto-cjk fonts-noto-cjk-extrafc-cache -fv
+          python -c "import PIL; print('Pillow版本:', PIL.__version__)"
+
+      - name: 🔍 Debug 檔案
+        run: |
+          echo "=== 程式碼內容 ==="
+          cat scripts/generate_post.py
+          echo "=== 字體檔案 ==="
+          ls -la assets/
 
       - name: 🤖 執行發文機器人
         env:
@@ -36,7 +37,7 @@ jobs:
         run: |
           python scripts/generate_post.py
 
-      - name: 📤 上傳圖片（供確認用）
+      - name: 📤 上傳圖片
         uses: actions/upload-artifact@v4
         with:
           name: generated-image
