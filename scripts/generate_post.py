@@ -225,6 +225,8 @@ def post_to_instagram(image_url, caption):
     if not container_id:
         print(f"❌ 建立媒體失敗：{res.json()}")
         return
+    import time
+    time.sleep(30)
 
     # Step 2: 發布
     publish_url = f"https://graph.facebook.com/v19.0/{IG_USER_ID}/media_publish"
