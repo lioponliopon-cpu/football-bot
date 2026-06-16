@@ -87,19 +87,21 @@ def generate_image(fixtures, path="output/schedule.png"):
     draw.rectangle([60, 155, W-60, 158], fill=BORDER)
 
     # 比賽卡片
+    card_h = 155
+    card_gap = 15
     for i, f in enumerate(fixtures[:6]):
-        y = 180 + i * 173
-        draw.rounded_rectangle([50, y, W-50, y+155], radius=16, fill=CARD, outline=BORDER, width=1)
-        draw.rounded_rectangle([50, y, 180, y+155],  radius=16, fill=GREEN)
-        draw.rectangle([150, y, 180, y+155], fill=GREEN)
+        y = 175 + i * (card_h + card_gap)
+        draw.rounded_rectangle([50, y, W-50, y+card_h], radius=16, fill=CARD, outline=BORDER, width=1)
+        draw.rounded_rectangle([50, y, 180, y+card_h],  radius=16, fill=GREEN)
+        draw.rectangle([150, y, 180, y+card_h], fill=GREEN)
 
-        draw.text((115, y+40),  f["date"], font=font(22), fill=WHITE, anchor="mm")
-        draw.text((115, y+80),  f["time"], font=font(28), fill=WHITE, anchor="mm")
+        draw.text((115, y+38),  f["date"], font=font(22), fill=WHITE, anchor="mm")
+        draw.text((115, y+77),  f["time"], font=font(28), fill=WHITE, anchor="mm")
         draw.text((115, y+112), "台灣時間",  font=font(17), fill=(200,255,200), anchor="mm")
 
-        draw.text((310,   y+77), f["home"],  font=font(34), fill=WHITE, anchor="mm")
-        draw.text((W//2,  y+77), f["score"], font=font(34), fill=GOLD,  anchor="mm")
-        draw.text((W-310, y+77), f["away"],  font=font(34), fill=WHITE, anchor="mm")
+        draw.text((310,   y+77), f["home"],  font=font(32), fill=WHITE, anchor="mm")
+        draw.text((W//2,  y+77), f["score"], font=font(32), fill=GOLD,  anchor="mm")
+        draw.text((W-310, y+77), f["away"],  font=font(32), fill=WHITE, anchor="mm")
 
     # 底部
     draw.rectangle([60, H-110, W-60, H-109], fill=BORDER)
