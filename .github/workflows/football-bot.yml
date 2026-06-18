@@ -1,44 +1,102 @@
 name: Football Bot 自動發文
 
 on:
+  schedule:
+    - cron: "0 0 * * 1"    # 每週一 08:00 台灣時間 → 本週賽程
+    - cron: "0 0 * * *"    # 每天 08:00 台灣時間 → 今日賽程
+    - cron: "0 16 * * *"   # 每天 00:00 台灣時間 → 賽後比分
   workflow_dispatch:
+    inputs:
+      post_type:
+        description: '發文類型 (weekly/daily/result)'
+        required: true
+        default: 'weekly'
 
 jobs:
-  post-schedule:
+  weekly:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * 1'
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Checkout 程式碼
-        uses: actions/checkout@v4
-
-      - name: 🐍 設定 Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: 📦 安裝套件
-        run: |
-          pip install requests "Pillow>=10.0.0"
-          python -c "import PIL; print('Pillow版本:', PIL.__version__)"
-
-      - name: 🔍 Debug 檔案
-        run: |
-          echo "=== 程式碼內容 ==="
-          cat scripts/generate_post.py
-          echo "=== 字體檔案 ==="
-          ls -la assets/
-
-      - name: 🤖 執行發文機器人
+      - run: pip install requests "Pillow>=10.0.0"
+      - name: 發本週賽程
         env:
+          POST_TYPE: weekly
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
           IG_ACCESS_TOKEN:  ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID:       ${{ secrets.IG_USER_ID }}
           IMGBB_API_KEY:    ${{ secrets.IMGBB_API_KEY }}
-        run: |
-          python scripts/generate_post.py
+        run: python scripts/generate_post.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: weekly-image
+          path: output/schedule.png
 
-      - name: 📤 上傳圖片
-        uses: actions/upload-artifact@v4
+  daily:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 0 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests "Pillow>=10.0.0"
+      - name: 發今日賽程
+        env:
+          POST_TYPE: daily
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          IG_ACCESS_TOKEN:  ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID:       ${{ secrets.IG_USER_ID }}
+          IMGBB_API_KEY:    ${{ secrets.IMGBB_API_KEY }}
+        run: python scripts/generate_post.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: daily-image
+          path: output/schedule.png
+
+  result:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 16 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests "Pillow>=10.0.0"
+      - name: 發賽後比分
+        env:
+          POST_TYPE: result
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          IG_ACCESS_TOKEN:  ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID:       ${{ secrets.IG_USER_ID }}
+          IMGBB_API_KEY:    ${{ secrets.IMGBB_API_KEY }}
+        run: python scripts/generate_post.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: result-image
+          path: output/schedule.png
+
+  manual:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests "Pillow>=10.0.0"
+      - name: 手動發文
+        env:
+          POST_TYPE: ${{ github.event.inputs.post_type }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+          IG_ACCESS_TOKEN:  ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID:       ${{ secrets.IG_USER_ID }}
+          IMGBB_API_KEY:    ${{ secrets.IMGBB_API_KEY }}
+        run: python scripts/generate_post.py
+      - uses: actions/upload-artifact@v4
         with:
           name: generated-image
           path: output/schedule.png
